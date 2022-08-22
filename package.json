@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@datocms/cma-client-browser": "^1.1.1",
     "@types/node": "^16.11.52",
     "@types/react": "^17.0.48",
     "@types/react-dom": "^17.0.17",
@@ -41,9 +42,12 @@
     "cross-env": "^7.0.3"
   },
   "datoCmsPlugin": {
-    "title": "",
+    "title": "Record bin",
     "previewImage": "",
     "coverImage": "",
-    "entryPoint": "build/index.html"
+    "entryPoint": "build/index.html",
+    "permissions": [
+      "currentUserAccessToken"
+    ]
   }
 }
