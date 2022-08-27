@@ -10,12 +10,14 @@ type errorObject = {
     field_id: string;
     field_label: string;
     field_type: string;
+    extraneous_attributes: string[];
   };
 };
 
 const BinOutlet = ({ ctx }: { ctx: RenderItemFormOutletCtx }) => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<errorObject>();
+
   const restorationHandler = async () => {
     setLoading(true);
 
@@ -58,7 +60,8 @@ const BinOutlet = ({ ctx }: { ctx: RenderItemFormOutletCtx }) => {
             <Section title="Restoration error">
               <p>Couldn't restore the record because of the following error:</p>
               <p>
-                {error.code}: {error.details.field}
+                {error.code}:{" "}
+                {error.details.field || error.details.extraneous_attributes}
               </p>
               <p>{error.details.code}</p>
               <p>
