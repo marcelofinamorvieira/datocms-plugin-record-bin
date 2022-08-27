@@ -3,88 +3,60 @@ import {
   IntentCtx,
   ItemType,
   RenderItemFormOutletCtx,
+  RenderModalCtx,
 } from "datocms-plugin-sdk";
 import { render } from "./utils/render";
 import ConfigScreen from "./entrypoints/ConfigScreen";
 import "datocms-react-ui/styles.css";
-import { buildClient } from "@datocms/cma-client-browser";
-import RecordOutlet from "./entrypoints/RecordOutlet";
 import BinOutlet from "./entrypoints/BinOutlet";
+import InstallationModal from "./entrypoints/InstallationModal";
+import PreInstallConfig from "./entrypoints/PreInstallConfig";
 
 connect({
   async onBoot(ctx) {
-    if (!ctx.currentUserAccessToken) {
-      //warn the user he needs to give token permission or the plugin doesn't work.
-      return;
-    }
-    if (!ctx.plugin.attributes.parameters.installed) { //creates the "Record Bin" model, and its fields.
-      const client = buildClient({ apiToken: ctx.currentUserAccessToken });
-      const recordBinModel = await client.itemTypes.create({
-        name: "🗑 Record Bin",
-        api_key: "record_bin",
-        collection_appearance: "table",
-      });
-      const labelField = await client.fields.create("record_bin", {
-        label: "Label",
-        field_type: "string",
-        api_key: "label",
-        position: 1,
-      });
-      client.fields.create("record_bin", {
-        label: "Model",
-        field_type: "string",
-        api_key: "model",
-        position: 2,
-      });
-      client.fields.create("record_bin", {
-        label: "Date of deletion",
-        field_type: "date_time",
-        api_key: "date_of_deletion",
-        position: 3,
-      });
-      client.fields.create("record_bin", {
-        label: "Record body",
-        field_type: "json",
-        api_key: "record_body",
-        position: 4,
-      });
-
-      await client.itemTypes.update("record_bin", {
-        title_field: { type: "field", id: labelField.id },
-        collection_appearance: "table",
-      });
-
-      await ctx.updatePluginParameters({
-        installed: true,
-        binModelID: recordBinModel.id, //this is bad for multiple environments, fix later
+    if (
+      !ctx.plugin.attributes.parameters.installationState &&
+      !ctx.plugin.attributes.parameters.hasBeenPrompted
+    ) {
+      ctx.updatePluginParameters({ hasBeenPrompted: true });
+      await ctx.openModal({
+        id: "installationModal",
+        title: "Record Bin setup",
+        width: "m",
+        parameters: { foo: "bar" },
+        closeDisabled: true,
       });
     }
   },
   renderConfigScreen(ctx) {
-    console.log(ctx.plugin.attributes.parameters.binModelID);
-    return render(<ConfigScreen ctx={ctx} />);
+    if (ctx.plugin.attributes.parameters.installationState === "installed") {
+      return render(<ConfigScreen ctx={ctx} />);
+    }
+    return render(<PreInstallConfig ctx={ctx} />);
   },
   itemFormOutlets(model: ItemType, ctx: IntentCtx) {
     if (model.attributes.api_key === "record_bin") {
       return [
         {
-          id: "binOutlet",
+          id: "recordBin",
           initialHeight: 0,
         },
       ];
     }
-    return [
-      {
-        id: "recordBin",
-        initialHeight: 0,
-      },
-    ];
+    return [];
   },
   renderItemFormOutlet(outletId, ctx: RenderItemFormOutletCtx) {
-    if (outletId === "recordBin") {
-      render(<RecordOutlet ctx={ctx} />);
-    } else {
+    if (
+      outletId === "recordBin" &&
+      ctx.plugin.attributes.parameters.installationState === "installed"
+    ) {
       render(<BinOutlet ctx={ctx} />);
+    }
+  },
+  renderModal(modalId: string, ctx: RenderModalCtx) {
+    switch (modalId) {
+      case "installationModal":
+        return render(<InstallationModal ctx={ctx} />);
     }
   },
 });

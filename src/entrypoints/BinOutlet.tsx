@@ -1,84 +1,84 @@
 import { RenderItemFormOutletCtx } from "datocms-plugin-sdk";
-import { Button, Canvas } from "datocms-react-ui";
-import { buildClient } from "@datocms/cma-client-browser";
+import { Button, Canvas, FieldGroup, Form, Section } from "datocms-react-ui";
 import { useState } from "react";
 
-function recursivelyDeleteAllBlockIDs(
-  recursiveObject: any,
-  previousKey: string
-) {
-  //lazy any replace later
-  if (recursiveObject.hasOwnProperty("id") && previousKey !== "data") {
-    delete recursiveObject["id"];
-  }
-  for (const key of Object.keys(recursiveObject)) {
-    if (recursiveObject[key] instanceof Object) {
-      recursivelyDeleteAllBlockIDs(recursiveObject[key], key);
-    }
-  }
-}
+type errorObject = {
+  code: string;
+  details: {
+    code: string;
+    field: string;
+    field_id: string;
+    field_label: string;
+    field_type: string;
+  };
+};
 
 const BinOutlet = ({ ctx }: { ctx: RenderItemFormOutletCtx }) => {
   const [isLoading, setLoading] = useState(false);
+  const [error, setError] = useState<errorObject>();
   const restorationHandler = async () => {
     setLoading(true);
-    const recordObject = await JSON.parse(ctx.formValues.record_body as string);
-    const tempMeta = {
-      created_at: recordObject.meta.created_at,
-      first_published_at: recordObject.meta.first_published_at,
-    };
-    const newRecordObject = {
-      data: {
-        type: "item",
-        meta: tempMeta,
-        relationships: { item_type: { data: { ...recordObject.item_type } } },
-        attributes: {},
-      },
-    };
-    delete recordObject.created_at;
-    delete recordObject.updated_at;
-    delete recordObject.creator;
-    delete recordObject.type;
-    delete recordObject.meta;
-    delete recordObject.item_type;
-    recursivelyDeleteAllBlockIDs(recordObject, "");
 
-    newRecordObject.data.attributes = { ...recordObject };
+    const parsedBody = JSON.parse(ctx.formValues.record_body as string);
+    parsedBody.trashRecordID = ctx.item!.id;
+    const requestBody = JSON.stringify(parsedBody);
 
-    const response = await fetch("https://site-api.datocms.com/items", {
-      method: "POST",
-      headers: {
-        "X-Api-Version": "3",
-        Authorization: "Bearer " + ctx.currentUserAccessToken,
-        Accept: "application/json",
-        "Content-Type": "application/vnd.api+json",
-      },
-      body: JSON.stringify(newRecordObject),
-    });
+    try {
+      const restoreResponse = await fetch(
+        ctx.plugin.attributes.parameters.vercelURL as string,
+        {
+          method: "POST",
+          body: requestBody,
+          headers: { Accept: "*/*", "Content-Type": "application/json" },
+        }
+      );
+      const parsedResponse = await restoreResponse.json();
+      if (restoreResponse.status !== 200) {
+        setError(parsedResponse.error);
+        throw new Error();
+      }
 
-    const parsedResponse = await response.json();
-
-    const client = buildClient({ apiToken: ctx.currentUserAccessToken! });
-
-    await client.items.destroy(ctx.item!.id);
-    ctx.notice("Record successfully restored!");
-    await ctx.navigateTo(
-      "/editor/item_types/" +
-        parsedResponse.data.relationships.item_type.data.id +
-        "/items/" +
-        parsedResponse.data.id
-    );
+      ctx.notice("The record has been successfully restored!");
+      ctx.navigateTo(
+        "/editor/item_types/" +
+          parsedResponse.restoredRecord.modelID +
+          "/items/" +
+          parsedResponse.restoredRecord.id
+      );
+    } catch (error) {
+      setLoading(false);
+      await ctx.alert("The record could not be restored!");
+    }
   };
   return (
     <Canvas ctx={ctx}>
-      <Button
-        buttonType={isLoading ? "muted" : "primary"}
-        disabled={isLoading}
-        fullWidth
-        onClick={restorationHandler}
-      >
-        Restore record ♻️
-      </Button>
+      <Form>
+        <FieldGroup>
+          {error && (
+            <Section title="Restoration error">
+              <p>Couldn't restore the record because of the following error:</p>
+              <p>
+                {error.code}: {error.details.field}
+              </p>
+              <p>{error.details.code}</p>
+              <p>
+                You can manually correct the errors on the record body, save the
+                record, and re-attempt to restore it.
+              </p>
+            </Section>
+          )}
+        </FieldGroup>
+        <FieldGroup>
+          <Button
+            buttonType={isLoading ? "muted" : "primary"}
+            disabled={isLoading}
+            fullWidth
+            onClick={restorationHandler}
+          >
+            Restore record ♻️
+          </Button>
+        </FieldGroup>
+      </Form>
     </Canvas>
   );
 };
