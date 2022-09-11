@@ -1,7 +1,22 @@
 {
-  "name": "record-bin",
+  "name": "datocms-plugin-record-bin",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "homepage": "https://github.com/marcelofinamorvieira/record-bin-lambda-function",
+  "description": "A plugin to manage and create a backup of deleted records in DatoCMS",
+  "keywords": [
+    "datocms-plugin",
+    "backup",
+    "record",
+    "bin"
+  ],
+  "datoCmsPlugin": {
+    "title": "Record bin",
+    "previewImage": "docs/demo.mp4",
+    "coverImage": "docs/cover.jpg",
+    "entryPoint": "build/index.html",
+    "permissions": []
+  },
   "dependencies": {
     "@types/node": "^16.11.52",
     "@types/react": "^17.0.48",
@@ -39,14 +54,5 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3"
-  },
-  "datoCmsPlugin": {
-    "title": "Record bin",
-    "previewImage": "",
-    "coverImage": "",
-    "entryPoint": "build/index.html",
-    "permissions": [
-      "currentUserAccessToken"
-    ]
   }
 }

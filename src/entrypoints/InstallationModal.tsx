@@ -46,6 +46,17 @@ const InstallationModal = ({ ctx }: PropTypes) => {
           you are finished with the setup, insert the deployment URL in the
           field bellow.
         </p>
+        <p>
+          If you'd like, you also can see, clone, and read the documentation on
+          that lambda function on{" "}
+          <a
+            href="https://github.com/marcelofinamorvieira/record-bin-lambda-function"
+            target="_blank"
+            rel="noreferrer"
+          >
+            this repository
+          </a>
+        </p>
         <h2>You can create your instance of that lambda function here:</h2>
         <Form>
           <Button
@@ -71,16 +82,17 @@ const InstallationModal = ({ ctx }: PropTypes) => {
           <Button
             fullWidth
             buttonType={isLoading ? "muted" : "primary"}
+            disabled={isLoading}
             onClick={handleFinishButtonClick}
           >
-            Finish instalation
+            Finish installation
           </Button>
           <Button
             fullWidth
             buttonType="negative"
             onClick={handleCancelationButtonClick}
           >
-            Cancel instalation
+            Cancel installation
           </Button>
         </Form>
       </div>

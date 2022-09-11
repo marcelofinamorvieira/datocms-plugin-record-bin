@@ -3,15 +3,19 @@ import { Button, Canvas, FieldGroup, Form, Section } from "datocms-react-ui";
 import { useState } from "react";
 
 type errorObject = {
-  code: string;
-  details: {
+  simplifiedError: {
     code: string;
-    field: string;
-    field_id: string;
-    field_label: string;
-    field_type: string;
-    extraneous_attributes: string[];
+    details: {
+      code: string;
+      field: string;
+      field_id: string;
+      field_label: string;
+      field_type: string;
+      extraneous_attributes: string[];
+      fullPayload: string;
+    };
   };
+  fullErrorPayload: string;
 };
 
 const BinOutlet = ({ ctx }: { ctx: RenderItemFormOutletCtx }) => {
@@ -52,6 +56,16 @@ const BinOutlet = ({ ctx }: { ctx: RenderItemFormOutletCtx }) => {
       await ctx.alert("The record could not be restored!");
     }
   };
+
+  const errorModalHandler = async () => {
+    await ctx.openModal({
+      id: "errorModal",
+      title: "Restoration error",
+      width: "l",
+      parameters: { errorPayload: error!.fullErrorPayload },
+    });
+  };
+
   return (
     <Canvas ctx={ctx}>
       <Form>
@@ -60,10 +74,14 @@ const BinOutlet = ({ ctx }: { ctx: RenderItemFormOutletCtx }) => {
             <Section title="Restoration error">
               <p>Couldn't restore the record because of the following error:</p>
               <p>
-                {error.code}:{" "}
-                {error.details.field || error.details.extraneous_attributes}
+                {error.simplifiedError.code}:{" "}
+                {error.simplifiedError.details.field ||
+                  error.simplifiedError.details.extraneous_attributes}
               </p>
-              <p>{error.details.code}</p>
+              <p>{error.simplifiedError.details.code}</p>
+              <Button onClick={errorModalHandler}>
+                See full restoration error report
+              </Button>
               <p>
                 You can manually correct the errors on the record body, save the
                 record, and re-attempt to restore it.

@@ -57,17 +57,11 @@ export default function ConfigScreen({ ctx }: Props) {
             setError("");
           }}
         />
-        {/* <SwitchField
-          name="recurringDelete"
-          id="recurringDelete"
-          label="Do this on dashboard initialization"
-          value={true}
-          onChange={(newValue) => console.log(newValue)}
-        /> */}
         <Button
           onClick={deletionHandler}
           fullWidth
           buttonType={isLoading ? "muted" : "negative"}
+          disabled={isLoading}
         >
           Delete
         </Button>

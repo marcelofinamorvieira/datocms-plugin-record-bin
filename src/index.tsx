@@ -11,6 +11,7 @@ import "datocms-react-ui/styles.css";
 import BinOutlet from "./entrypoints/BinOutlet";
 import InstallationModal from "./entrypoints/InstallationModal";
 import PreInstallConfig from "./entrypoints/PreInstallConfig";
+import ErrorModal from "./entrypoints/ErrorModal";
 
 connect({
   async onBoot(ctx) {
@@ -57,6 +58,8 @@ connect({
     switch (modalId) {
       case "installationModal":
         return render(<InstallationModal ctx={ctx} />);
+      case "errorModal":
+        return render(<ErrorModal ctx={ctx} />);
     }
   },
 });
