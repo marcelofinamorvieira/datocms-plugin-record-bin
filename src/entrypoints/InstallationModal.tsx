@@ -27,7 +27,11 @@ const InstallationModal = ({ ctx }: PropTypes) => {
     setIsLoading(true);
     try {
       await attemptVercelInitialization(vercelURL, ctx.environment);
-      await ctx.updatePluginParameters({ installationState: "installed", vercelURL });
+      await ctx.updatePluginParameters({
+        installationState: "installed",
+        vercelURL,
+        automaticBinCleanup: { numberOfDays: 30, timeStamp: "" },
+      });
       ctx.resolve("installed");
     } catch {
       setIsLoading(false);

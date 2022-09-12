@@ -8,7 +8,7 @@ export default function ConfigScreen({ ctx }: { ctx: RenderConfigScreenCtx }) {
     (
       ctx.plugin.attributes.parameters
         ?.automaticBinCleanup as automaticBinCleanupObject
-    )?.numberOfDays || "7"
+    )?.numberOfDays || "30"
   );
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState("");
