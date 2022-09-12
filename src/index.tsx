@@ -12,6 +12,7 @@ import BinOutlet from "./entrypoints/BinOutlet";
 import InstallationModal from "./entrypoints/InstallationModal";
 import PreInstallConfig from "./entrypoints/PreInstallConfig";
 import ErrorModal from "./entrypoints/ErrorModal";
+import binCleanup from "./utils/binCleanup";
 
 connect({
   async onBoot(ctx) {
@@ -27,7 +28,9 @@ connect({
         parameters: { foo: "bar" },
         closeDisabled: true,
       });
+      return;
     }
+    await binCleanup(ctx);
   },
   renderConfigScreen(ctx) {
     if (ctx.plugin.attributes.parameters.installationState === "installed") {

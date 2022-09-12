@@ -1,22 +1,7 @@
 import { RenderItemFormOutletCtx } from "datocms-plugin-sdk";
 import { Button, Canvas, FieldGroup, Form, Section } from "datocms-react-ui";
 import { useState } from "react";
-
-type errorObject = {
-  simplifiedError: {
-    code: string;
-    details: {
-      code: string;
-      field: string;
-      field_id: string;
-      field_label: string;
-      field_type: string;
-      extraneous_attributes: string[];
-      fullPayload: string;
-    };
-  };
-  fullErrorPayload: string;
-};
+import { errorObject } from "../types/types";
 
 const BinOutlet = ({ ctx }: { ctx: RenderItemFormOutletCtx }) => {
   const [isLoading, setLoading] = useState(false);
