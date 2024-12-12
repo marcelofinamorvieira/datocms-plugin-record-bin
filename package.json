@@ -1,8 +1,8 @@
 {
   "name": "datocms-plugin-record-bin",
-  "version": "1.9.0",
+  "version": "2.0.0",
   "private": false,
-  "homepage": "https://github.com/marcelofinamorvieira/record-bin-lambda-function#readme",
+  "homepage": "https://github.com/marcelofinamorvieira/datocms-plugin-record-bin",
   "description": "A plugin to manage and create a backup of deleted records in DatoCMS",
   "keywords": [
     "datocms",
